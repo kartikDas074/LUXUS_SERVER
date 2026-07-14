@@ -284,4 +284,138 @@ app.get(
   }
 );
 
+interface ProductParams {
+  id: string;
+}
+
+app.get(
+  "/product/:id",
+  async (req: Request<ProductParams>, res: Response) => {
+    try {
+      const { id } = req.params;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Product ID",
+        });
+      }
+
+      const product = await productCollection.findOne({
+        _id: new ObjectId(id),
+      });
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Product Not Found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Product fetched successfully",
+        data: product,
+      });
+    } catch (error) {
+      console.error("Get Product Error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+);
+
+app.patch(
+  "/product/:id",
+  async (req: Request<ProductParams>, res: Response) => {
+    try {
+      const { id } = req.params;
+      const data = req.body as Partial<IProduct>;
+
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Product ID",
+        });
+      }
+
+      const filter: Filter<IProduct> = {
+        _id: new ObjectId(id),
+      };
+
+      const result = await productCollection.updateOne(filter, {
+        $set: {
+          ...data,
+          updatedAt: new Date().toISOString(),
+        },
+      });
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Product Not Found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Product updated successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Update Product Error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+);
+
+app.delete(
+  "/product/:id",
+  async (req: Request<ProductParams>, res: Response) => {
+    try {
+      const { id } = req.params;
+
+     
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid Product ID",
+        });
+      }
+
+     
+      const result = await productCollection.deleteOne({
+        _id: new ObjectId(id),
+      });
+
+      
+      if (result.deletedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Product Not Found",
+        });
+      }
+
+     
+      return res.status(200).json({
+        success: true,
+        message: "Product deleted successfully",
+      });
+    } catch (error) {
+      console.error("Delete Product Error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+);
 export default app;
