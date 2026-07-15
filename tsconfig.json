@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
 
     "module": "NodeNext",
@@ -10,7 +10,6 @@
     "types": ["node"],
 
     "sourceMap": true,
-
     "strict": true,
 
     "esModuleInterop": true,
@@ -20,6 +19,12 @@
     "skipLibCheck": true
   },
 
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*",
+    "api/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
