@@ -17,6 +17,7 @@ const companyCollection = db.collection<ICompany>("company");
 const userCollection=db.collection('user');
 const productCollection=db.collection<IProduct>('product');
 const orderCollection=db.collection<IOrder>('orders');
+const categoryCollection=db.collection('categories');
 // Routes
 app.get("/", (_, res) => {
   res.send("Luxus Server Running...");
