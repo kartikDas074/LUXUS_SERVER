@@ -1,26 +1,26 @@
 import app from "../src/app";
 import { connectDB } from "../src/config/mongodb";
-import serverless from "serverless-http";
 
 let isConnected = false;
 
-const handler = serverless(app);
-
 export default async (req: any, res: any) => {
   try {
+  
     if (!isConnected) {
-      await connectDB();
+      //await connectDB();
       isConnected = true;
       console.log("✅ MongoDB Connected");
     }
 
-    return handler(req, res);
+    
+    return app(req, res);
   } catch (error) {
-    console.error(error);
+    console.error("🚨 Serverless Handler Error:", error);
 
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+      error: error instanceof Error ? error.message : "Unknown error"
     });
   }
 };
