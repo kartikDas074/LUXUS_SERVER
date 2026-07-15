@@ -4,6 +4,7 @@ import client from "./config/mongodb";
 import { ICompany } from "./types/company";
 import { Filter, ObjectId } from "mongodb";
 import { IProduct } from "./types/product";
+import { IOrder } from "./types/order";
 const app = express();
 
 // Middleware
@@ -15,6 +16,7 @@ const db = client.db("LUXE");
 const companyCollection = db.collection<ICompany>("company");
 const userCollection=db.collection('user');
 const productCollection=db.collection<IProduct>('product');
+const orderCollection=db.collection<IOrder>('orders');
 // Routes
 app.get("/", (_, res) => {
   res.send("Luxus Server Running...");
@@ -418,4 +420,70 @@ app.delete(
     }
   }
 );
+
+app.post(
+  "/order",
+  async (req: Request, res: Response) => {
+    try {
+      const data = req.body as IOrder;
+
+      const result = await orderCollection.insertOne(data);
+
+      return res.status(201).json({
+        success: true,
+        message: "Order placed successfully",
+        data: result,
+      });
+    } catch (error) {
+      console.error("Place Order Error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+);
+
+interface OrderQuery {
+  sellerId?: string;
+  userId?: string;
+}
+
+app.get(
+  "/order",
+  async (
+    req: Request<{}, {}, {}, OrderQuery>,
+    res: Response
+  ) => {
+    try {
+      const query: Filter<IOrder> = {};
+
+      if (req.query.sellerId) {
+        query.sellerId = req.query.sellerId;
+      }
+
+      if (req.query.userId) {
+        query.userId = req.query.userId;
+      }
+
+      const orders = await orderCollection.find(query).toArray();
+
+      return res.status(200).json({
+        success: true,
+        message: "Orders fetched successfully",
+        totalOrders: orders.length,
+        data: orders,
+      });
+    } catch (error) {
+      console.error("Fetch Orders Error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  }
+);
+
 export default app;
